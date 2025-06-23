@@ -1,4 +1,10 @@
 {
   "singleQuote": true,
-  "trailingComma": "all"
+  "trailingComma": "all",
+  "enabled": true,
+  "formatWithErrors": false,
+  "indentStyle": "tab",
+  "indentWidth": 2,
+  "lineWidth": 120,
+  "lineEnding": "lf"
 }
