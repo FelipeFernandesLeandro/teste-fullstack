@@ -3,16 +3,19 @@ import type { HydratedDocument } from 'mongoose';
 
 export type BookDocument = HydratedDocument<Book>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Book {
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   title: string;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   author: string;
 
-  @Prop()
+  @Prop({ type: String, required: false, unique: true, sparse: true })
   isbn?: string;
+
+  @Prop({ type: String, required: false })
+  coverImageUrl?: string;
 }
 
 export const BookSchema = SchemaFactory.createForClass(Book);

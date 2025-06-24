@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { BooksService } from 'src/books/books.service';
 import { CreateBookDto } from 'src/books/dto/create-book.dto';
@@ -28,6 +29,11 @@ export class BooksController {
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Book | null> {
     return this.booksService.findOne(id);
+  }
+
+  @Get('top-rated')
+  findTopRated(@Query('limit') limit: number = 10): Promise<Book[]> {
+    return this.booksService.findTopRated(limit);
   }
 
   @Delete(':id')

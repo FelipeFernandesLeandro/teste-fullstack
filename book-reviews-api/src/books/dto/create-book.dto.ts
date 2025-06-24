@@ -12,4 +12,8 @@ export class CreateBookDto {
   @IsString()
   @IsOptional()
   isbn?: string;
+
+  @IsString()
+  @IsOptional()
+  coverImageUrl?: string;
 }

@@ -2,6 +2,7 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
+import { Review } from '../reviews/schemas/review.schema';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { Book } from './schemas/book.schema';
@@ -9,6 +10,7 @@ import { Book } from './schemas/book.schema';
 describe('BooksService', () => {
   let service: BooksService;
   let bookModel: Model<Book>;
+  let reviewModel: Model<Review>;
 
   const mockBook: Book = {
     _id: '1',
@@ -16,6 +18,11 @@ describe('BooksService', () => {
     author: 'Test Author',
     isbn: '1234567890',
   } as Book;
+
+  const mockReviewModel = {
+    aggregate: jest.fn().mockReturnThis(),
+    exec: jest.fn(),
+  };
 
   class MockBookModel {
     _id: string;
@@ -56,11 +63,16 @@ describe('BooksService', () => {
           provide: getModelToken(Book.name),
           useValue: MockBookModel,
         },
+        {
+          provide: getModelToken(Review.name),
+          useValue: mockReviewModel,
+        },
       ],
     }).compile();
 
     service = module.get<BooksService>(BooksService);
     bookModel = module.get<Model<Book>>(getModelToken(Book.name));
+    reviewModel = module.get<Model<Review>>(getModelToken(Review.name));
   });
 
   afterEach(() => {
@@ -169,6 +181,27 @@ describe('BooksService', () => {
       expect(findByIdAndDeleteSpy).toHaveBeenCalledWith('1');
       expect(execMock).toHaveBeenCalled();
       expect(result).toEqual(mockBook);
+    });
+  });
+
+  describe('findTopRated', () => {
+    it('should return top rated books', async () => {
+      const topBooks = [
+        { ...mockBook, averageRating: 5 },
+        { ...mockBook, _id: '2', title: 'Another Book', averageRating: 4 },
+      ];
+      const execMock = jest.fn().mockResolvedValueOnce(topBooks);
+      const aggregateSpy = jest
+        .spyOn(reviewModel, 'aggregate')
+        .mockReturnValue({
+          exec: execMock,
+        } as unknown as import('mongoose').Aggregate<any[]>);
+
+      const result = await service.findTopRated(2);
+
+      expect(aggregateSpy).toHaveBeenCalled();
+      expect(execMock).toHaveBeenCalled();
+      expect(result).toEqual(topBooks);
     });
   });
 });
