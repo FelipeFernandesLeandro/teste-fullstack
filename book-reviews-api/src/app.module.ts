@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { BooksModule } from './books/books.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -17,6 +19,8 @@ import { AppService } from './app.service';
       }),
       inject: [ConfigService],
     }),
+
+    BooksModule,
   ],
   controllers: [AppController],
   providers: [AppService],
