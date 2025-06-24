@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsNumber,
@@ -21,6 +22,7 @@ export class CreateReviewDto {
     description: 'The rating of the review',
     example: 5,
   })
+  @Type(() => Number)
   @IsNumber()
   @Min(1, { message: 'Rating must be at least 1.' })
   @Max(5, { message: 'Rating must be at most 5.' })
