@@ -52,7 +52,7 @@ export default function ReviewForm({ bookId }: ReviewFormProps) {
           })}
           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
         />
-        {errors.reviewerName && <p className="mt-1 text-sm text-red-600">{errors.reviewerName.message}</p>}
+        {errors.reviewerName && <p className="mt-1 text-sm text-red-600" aria-live="polite">{errors.reviewerName.message}</p>}
       </div>
 
       <div>
@@ -71,7 +71,7 @@ export default function ReviewForm({ bookId }: ReviewFormProps) {
           <option value="4">4 Stars</option>
           <option value="5">5 Stars</option>
         </select>
-        {errors.rating && <p className="mt-1 text-sm text-red-600">{errors.rating.message}</p>}
+        {errors.rating && <p className="mt-1 text-sm text-red-600" aria-live="polite">{errors.rating.message}</p>}
       </div>
 
       <div>
@@ -86,7 +86,7 @@ export default function ReviewForm({ bookId }: ReviewFormProps) {
           })}
           className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
         />
-        {errors.comment && <p className="mt-1 text-sm text-red-600">{errors.comment.message}</p>}
+        {errors.comment && <p className="mt-1 text-sm text-red-600" aria-live="polite">{errors.comment.message}</p>}
       </div>
 
       <button
