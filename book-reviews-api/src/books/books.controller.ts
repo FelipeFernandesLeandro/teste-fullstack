@@ -8,11 +8,12 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BooksService } from 'src/books/books.service';
 import { CreateBookDto } from 'src/books/dto/create-book.dto';
 import { Book } from 'src/books/schemas/book.schema';
 
+@ApiTags('books')
 @Controller('books')
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}

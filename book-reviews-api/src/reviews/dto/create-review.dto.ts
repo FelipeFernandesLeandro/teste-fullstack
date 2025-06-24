@@ -6,7 +6,6 @@ import {
   IsString,
   Max,
   Min,
-  MinLength,
 } from 'class-validator';
 
 export class CreateReviewDto {
@@ -34,6 +33,5 @@ export class CreateReviewDto {
   })
   @IsString()
   @IsOptional()
-  @MinLength(10, { message: 'Comment must be at least 10 characters long.' })
   comment: string;
 }

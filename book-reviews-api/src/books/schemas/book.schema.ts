@@ -3,7 +3,11 @@ import type { HydratedDocument } from 'mongoose';
 
 export type BookDocument = HydratedDocument<Book>;
 
-@Schema({ timestamps: true })
+@Schema({
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
+})
 export class Book {
   @Prop({ type: String, required: true })
   title: string;
@@ -19,3 +23,9 @@ export class Book {
 }
 
 export const BookSchema = SchemaFactory.createForClass(Book);
+
+BookSchema.virtual('reviews', {
+  ref: 'Review',
+  localField: '_id',
+  foreignField: 'bookId',
+});

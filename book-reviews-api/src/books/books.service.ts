@@ -23,7 +23,7 @@ export class BooksService {
   }
 
   async findOne(id: string): Promise<BookDocument | null> {
-    return this.bookModel.findById(id).exec();
+    return this.bookModel.findById(id).populate('reviews').exec();
   }
 
   async findTopRated(limit: number): Promise<BookDocument[]> {
