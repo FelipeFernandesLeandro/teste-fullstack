@@ -1,0 +1,25 @@
+services:
+  api:
+    build:
+      context: ./book-reviews-api
+    container_name: book-reviews-api
+    restart: always
+    ports:
+      - '3122:3000'
+    volumes:
+      - ./book-reviews-api:/usr/src/app
+      - /usr/src/app/node_modules
+  ui:
+    build:
+      context: ./book-reviews-ui
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3122
+    container_name: book-reviews-ui
+    restart: always
+    ports:
+      - '3123:3000'
+    volumes:
+      - ./book-reviews-ui:/app
+      - /app/node_modules
+    depends_on:
+      - api
