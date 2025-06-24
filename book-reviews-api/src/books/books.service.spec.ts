@@ -22,6 +22,7 @@ describe('BooksService', () => {
     findByIdAndUpdate: jest.fn(),
     findByIdAndDelete: jest.fn(),
     create: jest.fn(),
+    countDocuments: jest.fn(),
   };
 
   const mockReviewsService = {
@@ -69,16 +70,59 @@ describe('BooksService', () => {
   });
 
   describe('findAll', () => {
-    it('should return an array of books', async () => {
+    it('should return paginated books', async () => {
+      const paginationDto = { page: 2, limit: 5 };
       const books = [mockBook];
-      mockBookModel.find.mockReturnValue({
-        exec: jest.fn().mockResolvedValueOnce(books),
-      } as any);
+      const total = 10;
 
-      const result = await service.findAll();
+      const findQuery = {
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue(books),
+      };
+      mockBookModel.find.mockReturnValue(findQuery);
+
+      mockBookModel.countDocuments.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(total),
+      });
+
+      const result = await service.findAll(paginationDto);
 
       expect(mockBookModel.find).toHaveBeenCalled();
-      expect(result).toEqual(books);
+      expect(findQuery.skip).toHaveBeenCalledWith(5);
+      expect(findQuery.limit).toHaveBeenCalledWith(5);
+      expect(mockBookModel.countDocuments).toHaveBeenCalled();
+
+      expect(result).toEqual({
+        data: books,
+        total,
+        page: 2,
+        limit: 5,
+        totalPages: 2,
+      });
+    });
+
+    it('should use default values if page and limit are not provided', async () => {
+      const books = [mockBook];
+      const total = 1;
+
+      const findQuery = {
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue(books),
+      };
+      mockBookModel.find.mockReturnValue(findQuery);
+
+      mockBookModel.countDocuments.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(total),
+      });
+
+      const result = await service.findAll({});
+
+      expect(findQuery.skip).toHaveBeenCalledWith(0);
+      expect(findQuery.limit).toHaveBeenCalledWith(10);
+
+      expect(result.totalPages).toBe(1);
     });
   });
 

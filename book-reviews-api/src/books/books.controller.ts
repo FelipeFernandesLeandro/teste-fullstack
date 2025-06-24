@@ -3,15 +3,25 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { BooksService } from 'src/books/books.service';
-import { CreateBookDto } from 'src/books/dto/create-book.dto';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { BooksService, PaginatedBooksResult } from 'src/books/books.service';
 import { Book } from 'src/books/schemas/book.schema';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { CreateBookDto } from './dto/create-book.dto';
+import { UpdateBookDto } from './dto/update-book.dto';
 
 @ApiTags('books')
 @Controller('books')
@@ -29,8 +39,22 @@ export class BooksController {
   @Get()
   @ApiOperation({ summary: 'Find all books' })
   @ApiResponse({ status: 200, description: 'List of all books.' })
-  findAll(): Promise<Book[]> {
-    return this.booksService.findAll();
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number to return',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of items per page',
+  })
+  findAll(
+    @Query() paginationDto: PaginationDto,
+  ): Promise<PaginatedBooksResult> {
+    return this.booksService.findAll(paginationDto);
   }
 
   @Get(':id')
@@ -52,11 +76,11 @@ export class BooksController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a book by ID' })
-  @ApiParam({ name: 'id', description: 'ID do livro a ser removido' })
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiParam({ name: 'id', description: 'book id to delete' })
   @ApiResponse({ status: 204, description: 'Book deleted successfully.' })
   @ApiResponse({ status: 404, description: 'Book not found.' })
-  remove(@Param('id') id: string): Promise<Book | null> {
+  remove(@Param('id') id: string): Promise<void> {
     return this.booksService.remove(id);
   }
 
@@ -67,7 +91,7 @@ export class BooksController {
   @ApiResponse({ status: 404, description: 'Book not found.' })
   update(
     @Param('id') id: string,
-    @Body() updateBookDto: CreateBookDto,
+    @Body() updateBookDto: UpdateBookDto,
   ): Promise<Book | null> {
     return this.booksService.update(id, updateBookDto);
   }
