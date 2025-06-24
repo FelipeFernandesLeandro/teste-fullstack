@@ -11,7 +11,7 @@ import { ReviewsModule } from './reviews/reviews.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: process.env.NODE_ENV === 'test' ? '.env.test.local' : '.env',
     }),
 
     MongooseModule.forRootAsync({
