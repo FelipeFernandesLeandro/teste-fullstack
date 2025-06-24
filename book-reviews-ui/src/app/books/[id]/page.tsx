@@ -1,5 +1,6 @@
 'use client';
 
+import ReviewForm from '@/components/ReviewForm';
 import ReviewList from '@/components/ReviewList';
 import { useBookById } from '@/lib/hooks/useBookById';
 import { useParams } from 'next/navigation';
@@ -32,6 +33,8 @@ export default function BookDetailPage() {
         </div>
 
         <ReviewList reviews={book.reviews || []} />
+
+        <ReviewForm bookId={book._id} />
 
       </div>
     </main>
