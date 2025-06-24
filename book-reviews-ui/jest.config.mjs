@@ -5,6 +5,7 @@ const createJestConfig = nextJest({
 })
 
 const config = {
+  coverageProvider: 'v8',
   testEnvironment: 'jest-environment-jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {

@@ -71,6 +71,8 @@ pnpm dev   # ⤵ starts:
            # UI   → :3000
 ```
 
+> Heads-up: running pnpm dev starts the API on :**3001** (Nest CLI) and the UI on :**3000** (`next dev`), while Docker Compose maps them to :**3122** (API) and :**3123** (UI).
+
 Scripts:
 
 #### API
@@ -126,9 +128,10 @@ Local dev can point to any other URI.
 
 ## 5. Front-end
 
-* **Next.js 14 (App Router)** — pages under `/app`.  
-* **React-Query** handles fetching / cache / optimistic update.  
-* **Tailwind CSS** for UI.  
+* **Next.js 14 (App Router)** — pages under `/app`.
+* **Home page (`/`) serves as the required “/books” list**, showing the top-rated section followed by the full paginated catalogue.
+* **React-Query** handles fetching / cache / optimistic update.
+* **Tailwind CSS** for UI.
 * Skeletons, error states and basic a11y (`aria-live`, `aria-invalid`, no layout shift).
 
 ---
@@ -137,7 +140,7 @@ Local dev can point to any other URI.
 
 * **Unit** – pure services with mocked Mongoose models.  
 * **e2e** – supertest against in-memory Nest app hitting the real Mongo test DB; covers CRUD + `/books/top`.
-* Coverage ~ 87 %.
+* Coverage ~ 84 %.
 
 ---
 
