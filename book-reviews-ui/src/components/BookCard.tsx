@@ -13,7 +13,7 @@ export default function BookCard({ book }: BookCardProps) {
       href={`/books/${book._id}`}
       className="flex flex-col gap-4 w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
     >
-      <BookCover src={book.coverImageUrl} alt={book.title} />
+      <BookCover src={book.coverImageUrl} alt={book.title + ' cover'} />
       <div className="flex flex-col">
         <h5 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white line-clamp-2">
           {book.title}
