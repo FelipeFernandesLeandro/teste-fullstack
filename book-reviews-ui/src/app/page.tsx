@@ -2,9 +2,14 @@
 
 import BookCard from '@/components/BookCard';
 import { useBooks } from '@/lib/hooks/useBooks';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useState } from 'react';
 
 export default function HomePage() {
-  const { data: books, isLoading, error } = useBooks();
+  const [page, setPage] = useState(1);
+  const booksPerPage = 12;
+
+  const { data: books, isLoading, error, isPlaceholderData } = useBooks(page, booksPerPage);
 
   if (isLoading) {
     return (
@@ -28,15 +33,35 @@ export default function HomePage() {
         <h1 className="text-4xl font-bold">Book Reviews Platform</h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {books?.map((book) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        {books?.data?.map((book) => (
           <BookCard key={book._id} book={book} />
         ))}
       </div>
 
-      {books && books.length === 0 && (
-        <p className="mt-8 text-gray-500">No books found. Try adding one!</p>
+      {books?.data?.length === 0 && (
+        <p className="mt-8 text-gray-500">No books found.</p>
       )}
+
+      <div className="flex items-center justify-center gap-4 mt-12">
+        <button
+          onClick={() => setPage((old) => Math.max(old - 1, 1))}
+          disabled={page === 1}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md disabled:bg-gray-400"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+
+        <span>Page {page} of {books?.totalPages}</span>
+
+        <button
+          onClick={() => setPage((old) => old + 1)}
+          disabled={isPlaceholderData || page === books?.totalPages}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md disabled:bg-gray-400"
+        >
+          <ArrowRight className="h-5 w-5" />
+        </button>
+      </div>
     </main>
   );
 }

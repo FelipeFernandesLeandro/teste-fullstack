@@ -1,11 +1,14 @@
 "use client"
 
-import { Book } from "@/lib/types"
+import { Book, PaginatedResponse } from "@/lib/types"
 import { useQuery } from "@tanstack/react-query"
 
-const fetchBooks = async (): Promise<Book[]> => {
+const fetchBooks = async (
+  page: number = 1,
+  limit: number = 12,
+): Promise<PaginatedResponse<Book>> => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
-  const res = await fetch(`${apiUrl}/books`)
+  const res = await fetch(`${apiUrl}/books?page=${page}&limit=${limit}`)
 
   if (!res.ok) {
     throw new Error("An error occurred while fetching the books")
@@ -14,9 +17,10 @@ const fetchBooks = async (): Promise<Book[]> => {
   return res.json()
 }
 
-export function useBooks() {
+export function useBooks(page: number, limit: number) {
   return useQuery({
-    queryKey: ["books"],
-    queryFn: fetchBooks,
+    queryKey: ["books", page, limit],
+    queryFn: () => fetchBooks(page, limit),
+    placeholderData: (previousData) => previousData,
   })
 }
