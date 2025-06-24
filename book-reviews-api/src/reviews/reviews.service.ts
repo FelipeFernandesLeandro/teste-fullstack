@@ -51,6 +51,7 @@ export class ReviewsService {
             _id: '$bookDetails._id',
             title: '$bookDetails.title',
             author: '$bookDetails.author',
+            coverImageUrl: '$bookDetails.coverImageUrl',
             averageRating: '$averageRating',
           },
         },

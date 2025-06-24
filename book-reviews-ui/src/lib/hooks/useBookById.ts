@@ -16,6 +16,9 @@ const fetchBookById = async (bookId: string): Promise<Book> => {
 
 export function useBookById(bookId: string) {
   return useQuery({
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchInterval: false,
     queryKey: ["book", bookId],
     queryFn: () => fetchBookById(bookId),
     enabled: !!bookId,

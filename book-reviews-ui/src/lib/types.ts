@@ -12,6 +12,7 @@ export interface Book {
   isbn?: string
   coverImageUrl?: string
   reviews?: Review[]
+  averageRating?: number
 }
 
 export interface PaginatedResponse<T> {

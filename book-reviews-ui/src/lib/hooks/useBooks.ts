@@ -18,9 +18,21 @@ const fetchBooks = async (
 }
 
 export function useBooks(page: number, limit: number) {
-  return useQuery({
-    queryKey: ["books", page, limit],
+  const query = useQuery<PaginatedResponse<Book>, Error>({
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchInterval: false,
+    queryKey: ["books", page, limit] as const,
     queryFn: () => fetchBooks(page, limit),
     placeholderData: (previousData) => previousData,
   })
+
+  return {
+    ...query,
+    data: query.data,
+    error: query.error,
+    isLoading: query.isLoading,
+    isPlaceholderData: query.isPlaceholderData,
+    refetch: query.refetch,
+  }
 }

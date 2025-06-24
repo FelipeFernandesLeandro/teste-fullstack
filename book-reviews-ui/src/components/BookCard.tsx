@@ -1,4 +1,5 @@
 import { Book } from '@/lib/types';
+import { Star } from 'lucide-react';
 import Link from 'next/link';
 import BookCover from './BookCover';
 
@@ -20,6 +21,13 @@ export default function BookCard({ book }: BookCardProps) {
         <p className="font-normal text-gray-700 dark:text-gray-400">
           by {book.author}
         </p>
+
+        {book.averageRating && (
+          <div className="flex items-center gap-1 mt-2 text-yellow-500 font-bold">
+            <Star className="h-4 w-4 fill-current" />
+            <span>{book.averageRating.toFixed(1)}</span>
+          </div>
+        )}
       </div>
     </Link>
   );
