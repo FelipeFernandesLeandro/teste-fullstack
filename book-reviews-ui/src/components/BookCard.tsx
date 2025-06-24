@@ -22,10 +22,24 @@ export default function BookCard({ book }: BookCardProps) {
           by {book.author}
         </p>
 
-        {book.averageRating && (
-          <div className="flex items-center gap-1 mt-2 text-yellow-500 font-bold">
-            <Star className="h-4 w-4 fill-current" />
-            <span>{book.averageRating.toFixed(1)}</span>
+        {(book.averageRating || book.reviewCount) && (
+          <div className="flex items-center gap-2 mt-2">
+            {book.averageRating && (
+              <span className="flex items-center gap-1 text-yellow-500 font-bold">
+                <Star className="h-4 w-4 fill-current" />
+                {book.averageRating.toFixed(1)}
+              </span>
+            )}
+
+            {book.averageRating && book.reviewCount ? (
+              <span className="text-gray-400">·</span>
+            ) : null}
+
+            {book.reviewCount !== undefined && (
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {book.reviewCount} review{book.reviewCount === 1 ? '' : 's'}
+              </span>
+            )}
           </div>
         )}
       </div>

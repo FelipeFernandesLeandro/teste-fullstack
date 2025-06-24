@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 
 const fetchTopRatedBooks = async (limit: number): Promise<Book[]> => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
-  const res = await fetch(`${apiUrl}/books/top-rated?limit=${limit}`)
+  const res = await fetch(`${apiUrl}/books/top?limit=${limit}`)
 
   if (!res.ok) {
     throw new Error("An error occurred while fetching the top rated books")
@@ -19,7 +19,7 @@ export function useTopRatedBooks(limit: number = 5) {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     refetchInterval: false,
-    queryKey: ["books", "top-rated", limit],
+    queryKey: ["books", "top", limit],
     queryFn: () => fetchTopRatedBooks(limit),
   })
 }

@@ -7,7 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { ReviewsService } from '../reviews/reviews.service';
+import { ReviewsService, TopBook } from '../reviews/reviews.service';
 import type { CreateBookDto } from './dto/create-book.dto';
 import type { UpdateBookDto } from './dto/update-book.dto';
 import { Book, type BookDocument } from './schemas/book.schema';
@@ -63,7 +63,7 @@ export class BooksService {
     return book;
   }
 
-  async findTopRated(limit: number): Promise<BookDocument[]> {
+  async findTopRated(limit: number): Promise<TopBook[]> {
     return this.reviewsService.findTopRatedBooks(limit);
   }
 

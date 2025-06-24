@@ -59,7 +59,7 @@ export class BooksController {
     return this.booksService.findAll(paginationDto);
   }
 
-  @Get('top-rated')
+  @Get('top')
   @ApiOperation({ summary: 'Find top rated books' })
   @ApiResponse({ status: 200, description: 'List of top rated books.' })
   @ApiParam({ name: 'limit', description: 'Number of books to return' })

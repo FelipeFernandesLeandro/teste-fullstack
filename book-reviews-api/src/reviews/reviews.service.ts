@@ -1,9 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
-import { BookDocument } from '../books/schemas/book.schema';
 import type { CreateReviewDto } from './dto/create-review.dto';
 import { Review, type ReviewDocument } from './schemas/review.schema';
+
+export type TopBook = {
+  _id: string;
+  title: string;
+  author: string;
+  coverImageUrl?: string;
+  averageRating: number;
+  reviewCount: number;
+};
 
 @Injectable()
 export class ReviewsService {
@@ -26,13 +34,14 @@ export class ReviewsService {
     return this.reviewModel.find({ bookId }).exec();
   }
 
-  async findTopRatedBooks(limit: number): Promise<BookDocument[]> {
+  async findTopRatedBooks(limit: number): Promise<TopBook[]> {
     return this.reviewModel
-      .aggregate([
+      .aggregate<TopBook>([
         {
           $group: {
             _id: '$bookId',
             averageRating: { $avg: '$rating' },
+            reviewCount: { $sum: 1 },
           },
         },
         { $sort: { averageRating: -1 } },
@@ -52,11 +61,12 @@ export class ReviewsService {
             title: '$bookDetails.title',
             author: '$bookDetails.author',
             coverImageUrl: '$bookDetails.coverImageUrl',
-            averageRating: '$averageRating',
+            averageRating: 1,
+            reviewCount: 1,
           },
         },
       ])
-      .exec() as Promise<BookDocument[]>;
+      .exec();
   }
 
   async update(

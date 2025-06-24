@@ -25,6 +25,7 @@ export default function ReviewList({ reviews }: ReviewListProps) {
   return (
     <div className="space-y-4 w-full">
       <h3 className="text-2xl font-semibold border-b pb-2">Reviews</h3>
+
       {reviews.slice(0, visibleCount).map((review) => (
         <ReviewCard key={review._id} review={review} />
       ))}
