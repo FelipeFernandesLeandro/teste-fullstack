@@ -84,7 +84,7 @@ export class BooksController {
   @ApiParam({ name: 'id', description: 'book id to delete' })
   @ApiResponse({ status: 204, description: 'Book deleted successfully.' })
   @ApiResponse({ status: 404, description: 'Book not found.' })
-  remove(@Param('id') id: string): Promise<void> {
+  remove(@Param('id') id: string): Promise<Book | null> {
     return this.booksService.remove(id);
   }
 

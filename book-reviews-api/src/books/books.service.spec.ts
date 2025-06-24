@@ -1,6 +1,6 @@
+import { NotFoundException } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, type TestingModule } from '@nestjs/testing';
-
 import { ReviewsService } from '../reviews/reviews.service';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
@@ -139,16 +139,17 @@ describe('BooksService', () => {
       expect(result).toEqual(mockBook);
     });
 
-    it('should return null if book not found', async () => {
+    it('should throw NotFoundException if book not found', async () => {
       mockBookModel.findById.mockReturnValue({
         populate: jest.fn().mockReturnThis(),
         exec: jest.fn().mockResolvedValueOnce(null),
       } as any);
 
-      const result = await service.findOne('nonexistent');
+      await expect(service.findOne('nonexistent')).rejects.toThrow(
+        new NotFoundException('Book with ID "nonexistent" not found'),
+      );
 
       expect(mockBookModel.findById).toHaveBeenCalledWith('nonexistent');
-      expect(result).toBeNull();
     });
   });
 
@@ -193,18 +194,19 @@ describe('BooksService', () => {
       expect(result).toEqual(mockBook);
     });
 
-    it('should return null if book to remove is not found', async () => {
+    it('should throw NotFoundException if book to remove is not found', async () => {
       mockBookModel.findByIdAndDelete.mockReturnValue({
         exec: jest.fn().mockResolvedValueOnce(null),
       } as any);
 
-      const result = await service.remove('nonexistent');
+      await expect(service.remove('nonexistent')).rejects.toThrow(
+        new NotFoundException('Book with ID "nonexistent" not found'),
+      );
 
       expect(mockBookModel.findByIdAndDelete).toHaveBeenCalledWith(
         'nonexistent',
       );
       expect(mockReviewsService.removeByBookId).not.toHaveBeenCalled();
-      expect(result).toBeNull();
     });
   });
 

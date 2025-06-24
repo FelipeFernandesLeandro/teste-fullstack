@@ -67,7 +67,7 @@ export class BooksService {
     return this.reviewsService.findTopRatedBooks(limit);
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string): Promise<BookDocument> {
     const deletedBook = await this.bookModel.findByIdAndDelete(id).exec();
 
     if (!deletedBook) {
@@ -75,6 +75,8 @@ export class BooksService {
     }
 
     await this.reviewsService.removeByBookId(id);
+
+    return deletedBook;
   }
 
   async removeAll(): Promise<void> {
