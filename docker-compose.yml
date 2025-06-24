@@ -1,0 +1,44 @@
+services:
+  api:
+    build:
+      context: ./book-reviews-api
+    container_name: book-reviews-api
+    restart: always
+    ports:
+      - '3122:3000'
+    volumes:
+      - ./book-reviews-api:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mongo
+
+  ui:
+    build:
+      context: ./book-reviews-ui
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3122
+    container_name: book-reviews-ui
+    restart: always
+    ports:
+      - '3123:3000'
+    volumes:
+      - ./book-reviews-ui:/app
+      - /app/node_modules
+    depends_on:
+      - api
+
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_URI: mongodb://root:root@mongo:27017/bookreviews?authSource=admin
+    volumes:
+      - db_data:/data/db
+
+volumes:
+  db_data:
