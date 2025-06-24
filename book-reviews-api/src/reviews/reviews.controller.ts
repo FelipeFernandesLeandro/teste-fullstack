@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -42,11 +43,15 @@ export class ReviewsController {
   @ApiOperation({ summary: 'Update a review by ID' })
   @ApiResponse({ status: 200, description: 'Review updated successfully.' })
   @ApiResponse({ status: 404, description: 'Review not found.' })
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateReviewDto: CreateReviewDto,
   ): Promise<Review | null> {
-    return this.reviewsService.update(id, updateReviewDto);
+    const review = await this.reviewsService.update(id, updateReviewDto);
+    if (!review) {
+      throw new NotFoundException(`Review with id ${id} not found`);
+    }
+    return review;
   }
 
   @Delete('reviews/:id')
@@ -54,7 +59,11 @@ export class ReviewsController {
   @ApiOperation({ summary: 'Remove a review by ID' })
   @ApiResponse({ status: 200, description: 'Review removed successfully.' })
   @ApiResponse({ status: 404, description: 'Review not found.' })
-  remove(@Param('id') id: string): Promise<Review | null> {
-    return this.reviewsService.remove(id);
+  async remove(@Param('id') id: string): Promise<Review | null> {
+    const review = await this.reviewsService.remove(id);
+    if (!review) {
+      throw new NotFoundException(`Review with id ${id} not found`);
+    }
+    return review;
   }
 }
