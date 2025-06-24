@@ -1,23 +1,24 @@
 # Book Reviews Platform — Solution README
 
-> **Assessment:** CRUD + Top-rated endpoint, NestJS + Mongo, Next .js UI, 4-8 h  
-> **This repo:** fully working implementation with Docker one-liner and remote MongoDB Atlas.
+> **Assessment:** CRUD for Books & Reviews, Top-rated endpoint, NestJS + MongoDB, Next.js UI, 8h time-box.
+> **This Submission:** A complete, self-contained implementation that runs the entire stack (API, UI, and local MongoDB) with a single Docker command.
 
 ---
 
-## 0. TL;DR
+## 0. TL;DR - Feature Status
 
-| Feature | Status |
-|---------|--------|
-| CRUD Books & Reviews | ✅ |
-| `/books/top?limit` returns `averageRating` + `reviewCount` | ✅ |
-| Seed ± 120 books / 900 reviews (JSON) | ✅ |
-| e2e (`books`, `reviews`, `books/top`) + unit tests | ✅ |
-| Swagger (`/docs`) | ✅ |
-| Docker compose (UI + API) | ✅ |
-| Accessibility tweaks (aria-live, aria-invalid, alt text) | ✅ |
-| SSR for `/books` route | 🟡 client-side only |
-| CI / CD | ❌ left out due to time |
+| Feature | Status | Notes |
+|---|---|---|
+| Full CRUD for Books & Reviews | ✅ | Implemented with nested routes for reviews. |
+| Top-Rated Books Endpoint | ✅ | Aggregation pipeline for `averageRating`. |
+| Automated Database Seeding | ✅ | The local database is seeded automatically when the Docker container is first built. |
+| E2E & Unit Testing (Backend) | ✅ | ~84% coverage, using Jest & Supertest. |
+| Component Testing (Frontend) | ✅ | Using Jest & React Testing Library. |
+| API Documentation | ✅ | Interactive UI via Swagger at `/api-docs`. |
+| Docker Compose Environment | ✅ | **One-command (`docker-compose up`) startup for UI, API & local DB.** |
+| CI/CD Pipeline | ✅ | GitHub Actions workflow runs lint & tests on push/PR to `main`. |
+| Advanced Frontend UX | ✅ | Optimistic Updates, Skeletons, Error States with Retry. |
+| SSR for Initial Load | 🟡 | Chose Client-Side Rendering with React Query for simplicity. |
 
 ---
 
@@ -27,7 +28,7 @@
 book-reviews-api   # NestJS 10 + Mongoose schemas, tests, seeds
 book-reviews-ui    # Next.js (App Router) + React-Query + Tailwind
 data/              # books_reviews_dataset.json (seed)
-docker-compose.yml # one command to run everything
+docker-compose.yml # Orchestrator for all services
 ```
 
 ---
@@ -39,36 +40,48 @@ The file **`data/books_reviews_dataset.json`** was produced from
 
 A small Python script trims the CSV, normalises ISBNs and exports to JSON (see `book-reviews-api/notebooks/books_reviews.ipynb`).
 
-## 2. Getting started locally
+## 2. Getting Started
 
-### Prereqs
+### Prerequisites
 * **pnpm ≥ 9**
-* Node 18 / 20
-* Docker (optional but easiest)
+* Node.js v20+
+* Docker & Docker Compose
 
-### With Docker (recommended)
+### With Docker (Recommended Method)
+
+This is the simplest way to run the entire stack. The database will be created, and the data will be seeded automatically on the first run.
 
 ```bash
-# root of the repo
-docker compose up --build
+# From the root of the repository
+docker-compose up --build
 # API on http://localhost:3122, UI on http://localhost:3123
 # Swagger: http://localhost:3122/docs
 ```
 
 ### Without Docker
 
+> This setup is more complex as it requires running a local MongoDB instance manually and managing environment variables. The Docker approach is strongly recommended.
+
 ```bash
-# copy environment samples
+# 1. Start a local MongoDB instance.
+
+# 2. Copy environment samples and configure them
 cp book-reviews-api/.env.example book-reviews-api/.env
-cp book-reviews-ui/.env.example  book-reviews-ui/.env
+# (Edit .env to point to your local MongoDB instance)
 
-# install everything
-pnpm install
+cp book-reviews-ui/.env.example book-reviews-ui/.env.local
+# (Edit .env.local to point to the correct API port)
 
-# dev mode – two processes
-pnpm dev   # ⤵ starts:
-           # API  → :3001
-           # UI   → :3000
+# 3. Install dependencies in both projects
+pnpm install --dir ./book-reviews-api
+pnpm install --dir ./book-reviews-ui
+
+# 4. Run the seed script for the API (in a separate terminal)
+pnpm --dir ./book-reviews-api run seed
+
+# 5. Run both apps in dev mode (in separate terminals)
+pnpm --dir ./book-reviews-api run start:dev
+pnpm --dir ./book-reviews-ui run dev
 ```
 
 > Heads-up: running pnpm dev starts the API on :**3001** (Nest CLI) and the UI on :**3000** (`next dev`), while Docker Compose maps them to :**3122** (API) and :**3123** (UI).
@@ -97,20 +110,19 @@ pnpm start     # starts UI
 
 ## 3. Environment variables
 
+Environment variables are primarily managed by the `docker-compose.yml` file for a containerized setup. The `.env` files are mainly for local, non-Docker development.
+
 | File | Purpose |
 |------|---------|
-| `book-reviews-api/.env.example` | `MONGO_URI`, `PORT` (3000), `FRONTEND_PORT` (3123) |
-| `book-reviews-ui/.env.example`  | `NEXT_PUBLIC_API_URL`, `PORT` (3000) |
-
-We use a **MongoDB Atlas** cluster (connection string already provided in `.env` and `.env.test.local`).
-Local dev can point to any other URI.
+| `book-reviews-api/.env` | Contains `MONGO_URI` for a local database and `CORS_ALLOWED_ORIGINS`. |
+| `book-reviews-ui/.env.local`  | Contains `NEXT_PUBLIC_API_URL` pointing to the API's address. |
 
 ---
 
 ## 4. API
 
-* **Swagger UI** → `GET /docs` (running server only).  
-* Core endpoints  
+* **Swagger UI** → `GET /docs` (running server only).
+* Core endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -138,9 +150,9 @@ Local dev can point to any other URI.
 
 ## 6. Testing
 
-* **Unit** – pure services with mocked Mongoose models.  
-* **e2e** – supertest against in-memory Nest app hitting the real Mongo test DB; covers CRUD + `/books/top`.
-* Coverage ~ 84 %.
+* **Unit** – Services are tested in isolation with mocked Mongoose models.
+* **E2E** – Supertest runs against an in-memory Nest app hitting a dedicated test database (`test-e2e`) to cover the full API lifecycle.
+* **Frontend** - React Testing Library and Jest are used to test component behavior and user interactions.
 
 ---
 
