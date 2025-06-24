@@ -1,6 +1,8 @@
 'use client';
 
 import BookCard from '@/components/BookCard';
+import BookCardSkeleton from '@/components/BookCardSkeleton';
+import ErrorMessage from '@/components/ErrorMessage';
 import { useBooks } from '@/lib/hooks/useBooks';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
@@ -9,20 +11,28 @@ export default function HomePage() {
   const [page, setPage] = useState(1);
   const booksPerPage = 12;
 
-  const { data: books, isLoading, error, isPlaceholderData } = useBooks(page, booksPerPage);
+  const { data: books, isLoading, error, isPlaceholderData, refetch } = useBooks(page, booksPerPage);
 
   if (isLoading) {
     return (
-      <main className="flex min-h-screen flex-col items-center p-24">
-        <p>Loading books...</p>
+      <main className="flex min-h-screen flex-col items-center p-12 md:p-24">
+        <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex mb-12">
+          <h1 className="text-4xl font-bold">Book Reviews Platform</h1>
+        </div>
+
+        <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {Array.from({ length: booksPerPage }).map((_, index) => (
+            <BookCardSkeleton key={index} />
+          ))}
+        </div>
       </main>
     );
   }
 
   if (error) {
     return (
-      <main className="flex min-h-screen flex-col items-center p-24">
-        <p>Error loading books: {error.message}</p>
+      <main className="flex min-h-screen flex-col items-center justify-center p-24">
+        <ErrorMessage message={error.message} onRetry={() => refetch()} />
       </main>
     );
   }

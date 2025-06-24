@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "images-na.ssl-images-amazon.com",
+        port: "",
+        pathname: "/images/P/**",
       },
     ],
   },
