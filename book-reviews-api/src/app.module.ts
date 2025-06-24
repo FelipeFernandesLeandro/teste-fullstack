@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_FILTER } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AllExceptionsFilter } from 'src/common/filters/all-exceptions.filter';
 import { BooksModule } from './books/books.module';
 import { ReviewsModule } from './reviews/reviews.module';
 
@@ -22,10 +22,13 @@ import { ReviewsModule } from './reviews/reviews.module';
     }),
 
     BooksModule,
-
     ReviewsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+  ],
 })
 export class AppModule {}
