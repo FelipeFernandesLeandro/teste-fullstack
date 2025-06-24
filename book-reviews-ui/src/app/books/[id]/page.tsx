@@ -4,6 +4,8 @@ import BookCover from '@/components/BookCover';
 import ReviewForm from '@/components/ReviewForm';
 import ReviewList from '@/components/ReviewList';
 import { useBookById } from '@/lib/hooks/useBookById';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 export default function BookDetailPage() {
@@ -27,6 +29,15 @@ export default function BookDetailPage() {
   return (
     <main className="flex min-h-screen flex-col items-center p-8 md:p-16">
       <div className="w-full max-w-4xl space-y-8">
+
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors mb-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to all books
+        </Link>
+
         <div className="flex flex-col md:flex-row gap-8 pb-8 border-b">
           <div className="md:w-1/3">
             <BookCover src={book.coverImageUrl} alt={book.title} />
