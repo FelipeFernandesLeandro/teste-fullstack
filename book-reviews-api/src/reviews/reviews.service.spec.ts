@@ -5,18 +5,26 @@ import { Model } from 'mongoose';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewsService } from './reviews.service';
 import { Review } from './schemas/review.schema';
+import { Book } from '../books/schemas/book.schema';
 
 describe('ReviewsService', () => {
   let service: ReviewsService;
   let reviewModel: Model<Review>;
 
-  const mockReview: Review = {
+  const mockBook: Book & { _id: string } = {
+    _id: '1',
+    title: 'A Test Book',
+    author: 'Test Author',
+    isbn: '978-3-16-148410-0',
+  };
+
+  const mockReview: Review & { _id: string } = {
     _id: '1',
     reviewerName: 'Test User',
-    rating: '5',
+    rating: 5,
     comment: 'Great book!',
-    bookId: '1',
-  } as Review;
+    bookId: mockBook,
+  };
 
   class MockReviewModel {
     static constructorSpy = jest.fn();

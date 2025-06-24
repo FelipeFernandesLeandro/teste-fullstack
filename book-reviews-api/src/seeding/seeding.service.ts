@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { BooksService } from 'src/books/books.service';
-import { CreateBookDto } from 'src/books/dto/create-book.dto';
-import { CreateReviewDto } from 'src/reviews/dto/create-review.dto';
-import { ReviewsService } from 'src/reviews/reviews.service';
+import { BooksService } from '../books/books.service';
+import { CreateBookDto } from '../books/dto/create-book.dto';
+import { CreateReviewDto } from '../reviews/dto/create-review.dto';
+import { ReviewsService } from '../reviews/reviews.service';
 
 type RawSeedData = {
   'Book.title': string;

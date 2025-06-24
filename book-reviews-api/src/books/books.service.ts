@@ -1,7 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
-import { ReviewsService } from 'src/reviews/reviews.service';
+import { ReviewsService } from '../reviews/reviews.service';
 import type { CreateBookDto } from './dto/create-book.dto';
 import { Book, type BookDocument } from './schemas/book.schema';
 
@@ -14,8 +14,7 @@ export class BooksService {
   ) {}
 
   async create(createBookDto: CreateBookDto): Promise<BookDocument> {
-    const createdBook = new this.bookModel(createBookDto);
-    return createdBook.save();
+    return this.bookModel.create(createBookDto);
   }
 
   async findAll(): Promise<BookDocument[]> {
@@ -31,7 +30,13 @@ export class BooksService {
   }
 
   async remove(id: string): Promise<BookDocument | null> {
-    return this.bookModel.findByIdAndDelete(id).exec();
+    const book = await this.bookModel.findByIdAndDelete(id).exec();
+
+    if (book) {
+      await this.reviewsService.removeByBookId(id);
+    }
+
+    return book;
   }
 
   async removeAll(): Promise<void> {

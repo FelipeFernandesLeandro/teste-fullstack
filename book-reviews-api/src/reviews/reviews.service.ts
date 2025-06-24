@@ -74,4 +74,8 @@ export class ReviewsService {
   async removeAll(): Promise<void> {
     await this.reviewModel.deleteMany({}).exec();
   }
+
+  async removeByBookId(bookId: string): Promise<void> {
+    await this.reviewModel.deleteMany({ bookId }).exec();
+  }
 }
