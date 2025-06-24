@@ -1,11 +1,13 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -57,6 +59,16 @@ export class BooksController {
     return this.booksService.findAll(paginationDto);
   }
 
+  @Get('top-rated')
+  @ApiOperation({ summary: 'Find top rated books' })
+  @ApiResponse({ status: 200, description: 'List of top rated books.' })
+  @ApiParam({ name: 'limit', description: 'Number of books to return' })
+  findTopRated(
+    @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number = 10,
+  ): Promise<Book[]> {
+    return this.booksService.findTopRated(limit);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Find a book by ID' })
   @ApiParam({ name: 'id', description: 'book id to find' })
@@ -64,14 +76,6 @@ export class BooksController {
   @ApiResponse({ status: 404, description: 'Book not found.' })
   findOne(@Param('id') id: string): Promise<Book | null> {
     return this.booksService.findOne(id);
-  }
-
-  @Get('top-rated')
-  @ApiOperation({ summary: 'Find top rated books' })
-  @ApiResponse({ status: 200, description: 'List of top rated books.' })
-  @ApiParam({ name: 'limit', description: 'Number of books to return' })
-  findTopRated(@Query('limit') limit: number = 10): Promise<Book[]> {
-    return this.booksService.findTopRated(limit);
   }
 
   @Delete(':id')
