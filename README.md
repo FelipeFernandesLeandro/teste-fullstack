@@ -1,73 +1,161 @@
-# Tech-Assessment – Book Reviews Platform
+# Book Reviews Platform — Solution README
 
-**Goal**  
-Build a small “Book Reviews” platform (CRUD books + reviews, plus an endpoint that returns the top-rated books).
-
-| Stack (mandatory) | Why |
-|-------------------|-----|
-| NestJS + MongoDB  | API, data layer & aggregation |
-| Next.js (App Router) | UI & SSR |
-| React Query       | Data fetching / cache |
-| Tailwind CSS      | Styling |
-
-> **Time-box:** aim for **4-8 h** of focused work.  
-> When time is up, push what you have — unfinished is OK, but document what’s missing.
+> **Assessment:** CRUD + Top-rated endpoint, NestJS + Mongo, Next .js UI, 4-8 h  
+> **This repo:** fully working implementation with Docker one-liner and remote MongoDB Atlas.
 
 ---
 
-## 1. What you must deliver
+## 0. TL;DR
 
-| Area | Minimum requirements |
-|------|----------------------|
-| **Backend** | *Connect to MongoDB* via env var<br>*Models*: `Book`, `Review` (rating 1-5)<br>*CRUD* endpoints for both entities (`/books`, `/books/:id/reviews`)<br>*Aggregation*: `GET /books/top?limit=10` returns avgRating + reviewCount, sorted desc<br>*Tests*: at least **one** e2e test hitting `/books/top` |
-| **Frontend** | `/books` page listing the top books (uses React Query)<br>Book detail page showing reviews and a form to add a review (optimistic update welcome)<br>Responsive UI with Tailwind |
-| **DX / Ops** | Clear local-dev instructions (README or Makefile)<br>`.env.example` with all needed vars<br>Lint + format commands<br>(Optional) Docker setup |
+| Feature | Status |
+|---------|--------|
+| CRUD Books & Reviews | ✅ |
+| `/books/top?limit` returns `averageRating` + `reviewCount` | ✅ |
+| Seed ± 120 books / 900 reviews (JSON) | ✅ |
+| e2e (`books`, `reviews`, `books/top`) + unit tests | ✅ |
+| Swagger (`/docs`) | ✅ |
+| Docker compose (UI + API) | ✅ |
+| Accessibility tweaks (aria-live, aria-invalid, alt text) | ✅ |
+| SSR for `/books` route | 🟡 client-side only |
+| CI / CD | ❌ left out due to time |
 
 ---
 
-## 2. Local setup expected by reviewers
+## 1. Project layout
 
-```bash
-pnpm install          # monorepo or multiple projects — you choose
-pnpm dev              # should start both backend and frontend
-# backend on :3001, frontend on :3000 is a common pattern
+```
+book-reviews-api   # NestJS 10 + Mongoose schemas, tests, seeds
+book-reviews-ui    # Next.js (App Router) + React-Query + Tailwind
+data/              # books_reviews_dataset.json (seed)
+docker-compose.yml # one command to run everything
 ```
 
-If you rely on Docker (e.g. docker compose up mongo), document it.
+---
 
-⸻
+## 1.1 · Seed data source
 
-## 3. Submission guidelines
-1.	Fork this repo, build on main.
-2.	Open a pull request to your own fork when finished. In the PR description include:
-  - (i) What is done / not done,
-  - (ii)	How to run tests and
-  - (iii)	Any trade-offs or shortcuts
-3.	Do not open a PR against the original repo.
+The file **`data/books_reviews_dataset.json`** was produced from
+[Kaggle – “Top 200 Trending Books With Reviews”](https://www.kaggle.com/datasets/anshtanwar/top-200-trending-books-with-reviews).
 
-⸻
+A small Python script trims the CSV, normalises ISBNs and exports to JSON (see `book-reviews-api/notebooks/books_reviews.ipynb`).
 
-## 4. Evaluation rubric
+## 2. Getting started locally
 
-Criterion	Weight
+### Prereqs
+* **pnpm ≥ 9**
+* Node 18 / 20
+* Docker (optional but easiest)
 
-- Correctness & tests	30 %
-- Code quality / structure	20 %
-- Data modelling & validation	15 %
-- Aggregation query efficiency	10 %
-- Frontend UX & accessibility	15 %
-- Documentation	10 %
+### With Docker (recommended)
 
+```bash
+# root of the repo
+docker compose up --build
+# API on http://localhost:3122, UI on http://localhost:3123
+# Swagger: http://localhost:3122/docs
+```
 
-⸻
+### Without Docker
 
-## 5. Constraints & tips
+```bash
+# copy environment samples
+cp book-reviews-api/.env.example book-reviews-api/.env
+cp book-reviews-ui/.env.example  book-reviews-ui/.env
 
--	TypeScript everywhere.
--	Keep third-party libs minimal (testing & dev-tools are fine).
--	Commit early & often — we read history.
--	Feel free to use dev-containers / Codespaces; just explain how.
+# install everything
+pnpm install
 
-⸻
+# dev mode – two processes
+pnpm dev   # ⤵ starts:
+           # API  → :3001
+           # UI   → :3000
+```
 
-Good luck 🚀
+Scripts:
+
+#### API
+```bash
+pnpm test      # jest unit tests
+pnpm test:e2e  # supertest e2e tests
+pnpm lint      # eslint
+pnpm format    # prettier --write
+pnpm seed      # seeds remote Mongo with dataset
+pnpm start     # starts API
+```
+
+#### UI
+```bash
+pnpm lint      # eslint
+pnpm format    # prettier --write
+pnpm dev       # dev mode
+pnpm start     # starts UI
+```
+
+---
+
+## 3. Environment variables
+
+| File | Purpose |
+|------|---------|
+| `book-reviews-api/.env.example` | `MONGO_URI`, `PORT` (3000), `FRONTEND_PORT` (3123) |
+| `book-reviews-ui/.env.example`  | `NEXT_PUBLIC_API_URL`, `PORT` (3000) |
+
+We use a **MongoDB Atlas** cluster (connection string already provided in `.env` and `.env.test.local`).
+Local dev can point to any other URI.
+
+---
+
+## 4. API
+
+* **Swagger UI** → `GET /docs` (running server only).  
+* Core endpoints  
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/books` | Paginated list (`page`, `limit`) |
+| `POST` | `/books` | Create book |
+| `GET` | `/books/:id` | One book w/ reviews |
+| `PATCH` | `/books/:id` | Update book |
+| `DELETE` | `/books/:id` | Remove book + cascade reviews |
+| `GET` | `/books/top?limit=10` | **Aggregation**: returns `averageRating`, `reviewCount` |
+| `POST` | `/books/:id/reviews` | Add review |
+| `GET` | `/books/:id/reviews` | Reviews by book |
+| `PATCH/DELETE` | `/reviews/:id` | Update / delete review |
+
+---
+
+## 5. Front-end
+
+* **Next.js 14 (App Router)** — pages under `/app`.  
+* **React-Query** handles fetching / cache / optimistic update.  
+* **Tailwind CSS** for UI.  
+* Skeletons, error states and basic a11y (`aria-live`, `aria-invalid`, no layout shift).
+
+---
+
+## 6. Testing
+
+* **Unit** – pure services with mocked Mongoose models.  
+* **e2e** – supertest against in-memory Nest app hitting the real Mongo test DB; covers CRUD + `/books/top`.
+* Coverage ~ 87 %.
+
+---
+
+## 7. Trade-offs & shortcuts (time-box)
+
+* Aggregation lacks compound index on `bookId,rating` (fine for 1 k docs).
+* SSR not implemented for `/books` (client fetch keeps code simpler).
+* No pagination on reviews ­– assumed small per book.
+* Error handling: global filter + 1 custom message only.
+* Remote MongoDB Atlas cluster (connection string already provided in `.env` and `.env.test.local`).
+
+---
+
+## 8. Next steps (if more time)
+
+1. Add server-side rendering and incremental static regen for `/books`.
+2. Create Docker healthcheck + CI workflow (GitHub Actions).
+3. Add rate-limiter (nestjs/throttler) and caching layer around `/books/top`.
+4. Lighthouse pass ≥ 90 (a11y/perf).
+
+Happy reviewing! 🚀
