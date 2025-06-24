@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { CreateReviewDto } from 'src/reviews/dto/create-review.dto';
 import { ReviewsService } from 'src/reviews/reviews.service';
 import { Review } from 'src/reviews/schemas/review.schema';
@@ -16,6 +17,9 @@ export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new review' })
+  @ApiResponse({ status: 201, description: 'Review created successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid parameters.' })
   create(
     @Param('bookId') bookId: string,
     @Body() createReviewDto: CreateReviewDto,
@@ -24,11 +28,19 @@ export class ReviewsController {
   }
 
   @Get()
+  @ApiParam({ name: 'bookId', description: 'book id to find reviews for' })
+  @ApiOperation({ summary: 'Find all reviews for a book' })
+  @ApiResponse({ status: 200, description: 'List of reviews.' })
+  @ApiResponse({ status: 404, description: 'Book not found.' })
   findAll(@Param('bookId') bookId: string): Promise<Review[]> {
     return this.reviewsService.findAll(bookId);
   }
 
   @Patch(':id')
+  @ApiParam({ name: 'id', description: 'review id to update' })
+  @ApiOperation({ summary: 'Update a review by ID' })
+  @ApiResponse({ status: 200, description: 'Review updated successfully.' })
+  @ApiResponse({ status: 404, description: 'Review not found.' })
   update(
     @Param('id') id: string,
     @Body() updateReviewDto: CreateReviewDto,
@@ -37,6 +49,10 @@ export class ReviewsController {
   }
 
   @Delete(':id')
+  @ApiParam({ name: 'id', description: 'review id to delete' })
+  @ApiOperation({ summary: 'Remove a review by ID' })
+  @ApiResponse({ status: 200, description: 'Review removed successfully.' })
+  @ApiResponse({ status: 404, description: 'Review not found.' })
   remove(@Param('id') id: string): Promise<Review | null> {
     return this.reviewsService.remove(id);
   }
