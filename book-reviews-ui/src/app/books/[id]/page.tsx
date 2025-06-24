@@ -1,5 +1,6 @@
 'use client';
 
+import BookCover from '@/components/BookCover';
 import ReviewForm from '@/components/ReviewForm';
 import ReviewList from '@/components/ReviewList';
 import { useBookById } from '@/lib/hooks/useBookById';
@@ -26,16 +27,19 @@ export default function BookDetailPage() {
   return (
     <main className="flex min-h-screen flex-col items-center p-8 md:p-16">
       <div className="w-full max-w-4xl space-y-8">
-        <div className="pb-8 border-b">
-          <h1 className="text-5xl font-extrabold">{book.title}</h1>
-          <p className="mt-2 text-2xl text-gray-600 dark:text-gray-400">by {book.author}</p>
-          {book.isbn && <p className="mt-4 text-sm text-gray-500">ISBN: {book.isbn}</p>}
+        <div className="flex flex-col md:flex-row gap-8 pb-8 border-b">
+          <div className="md:w-1/3">
+            <BookCover src={book.coverImageUrl} alt={book.title} />
+          </div>
+          <div className="md:w-2/3">
+            <h1 className="text-5xl font-extrabold">{book.title}</h1>
+            <p className="mt-2 text-2xl text-gray-600 dark:text-gray-400">by {book.author}</p>
+            {book.isbn && <p className="mt-4 text-sm text-gray-500">ISBN: {book.isbn}</p>}
+          </div>
         </div>
 
         <ReviewList reviews={book.reviews || []} />
-
         <ReviewForm bookId={book._id} />
-
       </div>
     </main>
   );
