@@ -2,7 +2,7 @@ export interface Review {
   _id: string
   reviewerName: string
   rating: number
-  comment: string
+  comment?: string
 }
 
 export interface Book {

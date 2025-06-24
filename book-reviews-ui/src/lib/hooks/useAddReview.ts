@@ -1,16 +1,20 @@
 "use client"
 
-import { Review } from "@/lib/types"
+import { Book, Review } from "@/lib/types"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "react-hot-toast"
 
-interface AddReviewPayload {
+type AddReviewPayload = {
   bookId: string
   reviewData: {
     reviewerName: string
     rating: number
     comment?: string
   }
+}
+
+type OptimisticUpdateContext = {
+  previousBook?: Book
 }
 
 const addReview = async ({
@@ -39,14 +43,45 @@ const addReview = async ({
 export function useAddReview() {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  return useMutation<Review, Error, AddReviewPayload, OptimisticUpdateContext>({
     mutationFn: addReview,
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["book", variables.bookId] })
+    onMutate: async (newReviewPayload) => {
+      const { bookId, reviewData } = newReviewPayload
+      const queryKey = ["book", bookId]
+
+      await queryClient.cancelQueries({ queryKey })
+
+      const previousBook = queryClient.getQueryData<Book>(queryKey)
+
+      queryClient.setQueryData<Book>(queryKey, (oldBook) => {
+        if (!oldBook) return undefined
+
+        const optimisticReview: Review = {
+          _id: `optimistic-${Date.now()}`,
+          ...reviewData,
+        }
+
+        return {
+          ...oldBook,
+          reviews: [...(oldBook.reviews || []), optimisticReview],
+        }
+      })
+
+      return { previousBook }
     },
-    onError: (error) => {
+
+    onError: (error, variables, context) => {
       toast.error(`Failed to add review: ${error.message}`)
-      console.error("Failed to add review:", error)
+      if (context?.previousBook) {
+        queryClient.setQueryData(
+          ["book", variables.bookId],
+          context.previousBook,
+        )
+      }
+    },
+
+    onSettled: (data, error, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["book", variables.bookId] })
     },
   })
 }
